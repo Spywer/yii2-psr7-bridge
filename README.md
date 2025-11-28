@@ -1,6 +1,6 @@
 # Yii2 PSR-7 Bridge
 
-A PSR-7 bridge and PSR-15 adapter for Yii2 web applications that enables Yii2 to work with modern PHP application servers and middleware.
+A PSR-7 bridge and PSR-15 adapter for Yii2 web applications (PHP 8.5 compatible) that enables Yii2 to work with modern PHP application servers and middleware.
 
 ## Overview
 
