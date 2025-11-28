@@ -1,12 +1,15 @@
 {
-    "name": "charlesportwoodii/yii2-psr7-bridge",
-    "description": "A PSR7 Bridge for Yii2",
+    "name": "spywer/yii2-psr7-bridge",
+    "description": "A PSR-7 bridge and PSR-15 adapter for Yii2 web applications (PHP 8.5 compatible)",
     "type": "library",
     "license": "BSD-3-Clause",
     "authors": [
         {
             "name": "Charles R. Portwood II",
             "email": "charlesportwoodii@erianna.com"
+        },
+        {
+            "name": "Spywer"
         }
     ],
     "minimum-stability": "stable",
