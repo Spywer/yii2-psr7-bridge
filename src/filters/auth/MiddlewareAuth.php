@@ -119,10 +119,11 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $attributeValue = $request->getAttribute($this->attribute);
         return new \Laminas\Diactoros\Response\EmptyResponse(
             $this->continueStatusCode,
             [
-                static::TOKEN_ATTRIBUTE_NAME => $request->getAttribute($this->attribute)
+                static::TOKEN_ATTRIBUTE_NAME => $attributeValue !== null ? (string)$attributeValue : ''
             ]
         );
     }

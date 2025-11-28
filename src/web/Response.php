@@ -14,7 +14,7 @@ class Response extends \yii\web\Response
     public function sendStreamAsFile($handle, $attachmentName, $options = [])
     {
         $response = parent::sendStreamAsFile($handle, $attachmentName, $options);
-        $this->stream = new Stream($this->stream[0], 'r');
+        $this->stream = new Stream($this->stream[0]);
         return $response;
     }
 
