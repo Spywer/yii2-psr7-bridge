@@ -94,7 +94,7 @@ class Request extends \yii\web\Request
     {
         $result = Yii::$app->getUrlManager()->parseRequest($this);
         if ($result !== false) {
-            list($route, $params) = $result;
+            [$route, $params] = $result;
             if ($this->_queryParams === null) {
                 $this->_queryParams = $params + $this->getPsr7Request()->getQueryParams();
             }
@@ -268,7 +268,7 @@ class Request extends \yii\web\Request
             )*$%xs', $pathInfo
         )
         ) {
-            $pathInfo = utf8_encode($pathInfo);
+            $pathInfo = mb_convert_encoding($pathInfo, 'UTF-8', mb_detect_encoding($pathInfo, mb_list_encodings(), true) ?: 'ISO-8859-1');
         }
 
         if (strncmp($pathInfo, '/', 1) === 0) {
