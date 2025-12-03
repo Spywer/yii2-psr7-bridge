@@ -16,7 +16,7 @@
     "require": {
         "php": "^8.5",
         "yiisoft/yii2": "^2.0.53",
-        "psr/http-message": "^1.0",
+        "psr/http-message": "^2.0",
         "psr/http-server-handler": "^1.0",
         "laminas/laminas-diactoros": "^3.8"
     },

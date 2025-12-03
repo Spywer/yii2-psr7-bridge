@@ -22,8 +22,11 @@ trait Psr7ResponseTrait
     {
         $this->setStatusCode($response->getStatusCode());
         $this->content = (string)$response->getBody();
-        foreach ($response->getHeaders() as $name => $value) {
-            $this->headers->add($name, $value);
+        // PSR-7 getHeaders() returns array<string, string[]> - values are arrays
+        foreach ($response->getHeaders() as $name => $values) {
+            foreach ($values as $value) {
+                $this->headers->add($name, $value);
+            }
         }
 
         return $this;

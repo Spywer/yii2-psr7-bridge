@@ -92,8 +92,11 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
         if ($process->getStatusCode() === $this->continueStatusCode
             && $process->hasHeader(static::TOKEN_ATTRIBUTE_NAME)
         ) {
+            // PSR-7 getHeader() returns string[] - get first value
+            $tokenHeader = $process->getHeader(static::TOKEN_ATTRIBUTE_NAME);
+            $token = is_array($tokenHeader) && count($tokenHeader) > 0 ? $tokenHeader[0] : '';
             if ($identity = $user->loginByAccessToken(
-                $process->getHeader(static::TOKEN_ATTRIBUTE_NAME),
+                $token,
                 \get_class($this)
             )
             ) {
