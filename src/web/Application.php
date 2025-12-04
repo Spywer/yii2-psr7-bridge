@@ -138,7 +138,7 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      * @param  ServerRequestInterface $request
      * @return ResponseInterface
      */
-    public function handle(ServerRequestInterface $request) : ResponseInterface
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try {
             $this->reset($request);
@@ -169,7 +169,7 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      * @param  ResponseInterface $response
      * @return ResponseInterface
      */
-    protected function terminate(ResponseInterface $response) : ResponseInterface
+    protected function terminate(ResponseInterface $response): ResponseInterface
     {
         // Handle any monitors that are attached
         foreach ($this->monitors as $monitor) {

@@ -109,7 +109,7 @@ class ErrorHandler extends \yii\web\ErrorHandler
                 if (YII_DEBUG) {
                     ini_set('display_errors', 1);
                 }
-                // In this branch (elseif), $useErrorView is false, so always use exceptionView                /** @phpstan-ignore-next-line Unreachable code false positive */
+                // In this branch (elseif), $useErrorView is false, so always use exceptionView
                 $file = $this->exceptionView;
                 $response->data = $this->renderFile(
                     $file,

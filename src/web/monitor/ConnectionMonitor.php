@@ -25,12 +25,12 @@ class ConnectionMonitor extends AbstractMonitor
         };
     }
 
-    public function on() : void
+    public function on(): void
     {
         Event::on(Connection::class, Connection::EVENT_AFTER_OPEN, $this->handler);
     }
 
-    public function off() : void
+    public function off(): void
     {
         Event::off(Connection::class, Connection::EVENT_AFTER_OPEN, $this->handler);
     }

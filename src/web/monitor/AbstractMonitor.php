@@ -16,19 +16,19 @@ abstract class AbstractMonitor
      *
      * @return void
      */
-    abstract public function on() : void;
+    abstract public function on(): void;
 
     /**
      * Disables the monitor
      *
      * @return void
      */
-    abstract public function off() : void;
+    abstract public function off(): void;
 
     /**
      * Shutdown and cleanup of the monitor
      *
      * @return void
      */
-    abstract public function shutdown() : void;
+    abstract public function shutdown(): void;
 }
