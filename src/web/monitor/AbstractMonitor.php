@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace yii\Psr7\web\monitor;

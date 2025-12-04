@@ -1,14 +1,10 @@
 <?php
-
 declare(strict_types=1);
 
 namespace yii\Psr7\web\monitor;
 
-use Yii;
-
 use yii\base\Event;
 use yii\db\Connection;
-use yii\Psr7\web\Monitor;
 
 /**
  * Handles any and all database connections that are established, and ensures
@@ -18,11 +14,11 @@ class ConnectionMonitor extends AbstractMonitor
 {
     protected $handler;
 
-    protected $connections = [];
+    protected array $connections = [];
 
     public function __construct()
     {
-        $this->handler = function (Event $e) {
+        $this->handler = function (Event $e): void {
             if ($e->sender instanceof Connection) {
                 $this->connections[] = $e->sender;
             }
@@ -39,7 +35,7 @@ class ConnectionMonitor extends AbstractMonitor
         Event::off(Connection::class, Connection::EVENT_AFTER_OPEN, $this->handler);
     }
 
-    public function shutdown() : void
+    public function shutdown(): void
     {
         foreach ($this->connections as $connection) {
             $connection->close();

@@ -1,20 +1,18 @@
-<?php declare(strict_types=1);
+<?php 
+declare(strict_types=1);
 
 namespace yii\Psr7\web;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use ReflectionMethod;
+use ReflectionClass;
 
 use Yii;
 use yii\base\Component;
 
 use yii\Psr7\web\monitor\ConnectionMonitor;
 use yii\Psr7\web\monitor\EventMonitor;
-
-use yii\Psr7\web\Response;
 
 /**
  * A Yii2 compatible A PSR-15 RequestHandlerInterface Application component
@@ -23,25 +21,13 @@ use yii\Psr7\web\Response;
  */
 class Application extends \yii\web\Application implements RequestHandlerInterface
 {
-    /**
-     * @inheritdoc
-     */
-    public $version = "0.0.2";
+    public string $version = "0.0.2";
 
-    /**
-     * @var array The configuration
-     */
-    private $config;
+    private array $config;
 
-    /**
-     * @var int $memoryLimit
-     */
-    private $memoryLimit;
+    private int $memoryLimit;
 
-    /**
-     * @var array $monitors
-     */
-    private $monitors = [];
+    private array $monitors = [];
 
     /**
      * Overloaded constructor to persist configuration
@@ -70,7 +56,7 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      *
      * @return array
      */
-    public function monitors()
+    public function monitors(): array
     {
         return [
             new ConnectionMonitor,
@@ -83,7 +69,7 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      *
      * @return void
      */
-    protected function reset(ServerRequestInterface $request)
+    protected function reset(ServerRequestInterface $request): void
     {
         // Override YII_BEGIN_TIME if possible for yii2-debug
         // and other modules that depend on it
@@ -132,22 +118,17 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
         $session->close();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function init()
+    public function init(): void
     {
         $this->state = self::STATE_INIT;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function bootstrap()
+    protected function bootstrap(): void
     {
         // Call the bootstrap method in \yii\base\Application instead of \yii\web\Application
-        $method = new ReflectionMethod(get_parent_class(get_parent_class($this)), 'bootstrap');
-        $method->setAccessible(true);
+        $parentClass = get_parent_class(get_parent_class($this));
+        $reflection = new ReflectionClass($parentClass);
+        $method = $reflection->getMethod('bootstrap');
         $method->invoke($this);
     }
 
@@ -213,9 +194,21 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      * @param  \Throwable|\Exception $exception
      * @return ResponseInterface
      */
-    private function handleError(\Throwable $exception) : ResponseInterface
+    private function handleError(\Throwable $exception): ResponseInterface
     {
-        $response = $this->getErrorHandler()->handleException($exception);
+        // handleException() may return void or Response
+        // @phpstan-ignore-next-line - handleException can return void or Response
+        $errorHandlerResponse = $this->getErrorHandler()->handleException($exception);
+        
+        // Check if we got a Response (handleException can return void in some cases)
+        if ($errorHandlerResponse instanceof \yii\web\Response) {
+            $response = $errorHandlerResponse;
+        } else {
+            // Fallback: create a basic error response if handleException returned void
+            $response = $this->getResponse();
+            $response->setStatusCode(500);
+            $response->data = 'An internal server error occurred.';
+        }
 
         $this->trigger(self::EVENT_AFTER_REQUEST);
         $this->state = self::STATE_END;
@@ -223,10 +216,7 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
         return $response->getPsr7Response();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function coreComponents()
+    public function coreComponents(): array
     {
         return array_merge(
             parent::coreComponents(),
@@ -250,7 +240,7 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      *
      * @return boolean
      */
-    public function clean()
+    public function clean(): bool
     {
         gc_collect_cycles();
         $limit = $this->getMemoryLimit();
@@ -268,16 +258,19 @@ class Application extends \yii\web\Application implements RequestHandlerInterfac
      *
      * @return int
      */
-    private function getMemoryLimit() : int
+    private function getMemoryLimit(): int
     {
         if (!$this->memoryLimit) {
             $limit  = ini_get('memory_limit');
             sscanf($limit, '%u%c', $number, $suffix);
             if (isset($suffix)) {
-                $number = $number * pow(1024, strpos(' KMG', strtoupper($suffix)));
+                $pos = strpos(' KMG', strtoupper($suffix));
+                if ($pos !== false) {
+                    $number = $number * pow(1024, $pos);
+                }
             }
 
-            $this->memoryLimit = $number;
+            $this->memoryLimit = $number ?? 0;
         }
 
         return (int)$this->memoryLimit;

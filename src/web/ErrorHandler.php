@@ -1,19 +1,17 @@
-<?php declare(strict_types=1);
+<?php 
+declare(strict_types=1);
 
 namespace yii\Psr7\web;
 
 use Yii;
-use yii\base\ErrorException;
 use yii\base\Exception;
+use yii\base\ExitException;
 use yii\base\UserException;
 use yii\helpers\VarDumper;
 use yii\Psr7\web\Response;
 
 class ErrorHandler extends \yii\web\ErrorHandler
 {
-    /**
-     * @inheritdoc
-     */
     public function handleException($exception)
     {
         if ($exception instanceof ExitException) {
@@ -52,10 +50,7 @@ class ErrorHandler extends \yii\web\ErrorHandler
         $this->exception = null;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function handleFallbackExceptionMessage($exception, $previousException)
+    protected function handleFallbackExceptionMessage($exception, $previousException): Response
     {
         $response = new Response;
         $msg = "An Error occurred while handling another error:\n";
@@ -79,9 +74,9 @@ class ErrorHandler extends \yii\web\ErrorHandler
     }
 
     /**
-     * @inheritdoc
+     * @return Response
      */
-    protected function renderException($exception)
+    protected function renderException($exception): Response
     {
         if (Yii::$app->has('response')) {
             $response = Yii::$app->getResponse();
@@ -111,12 +106,11 @@ class ErrorHandler extends \yii\web\ErrorHandler
                 // AJAX request
                 $response->data = '<pre>' . $this->htmlEncode(static::convertExceptionToString($exception)) . '</pre>';
             } else {
-                // if there is an error during error rendering it's useful to
-                // display PHP error in debug mode instead of a blank screen
                 if (YII_DEBUG) {
-                    ini_set('display_errors', 'true');
+                    ini_set('display_errors', 1);
                 }
-                $file = $useErrorView ? $this->errorView : $this->exceptionView;
+                // In this branch (elseif), $useErrorView is false, so always use exceptionView                /** @phpstan-ignore-next-line Unreachable code false positive */
+                $file = $this->exceptionView;
                 $response->data = $this->renderFile(
                     $file,
                     [

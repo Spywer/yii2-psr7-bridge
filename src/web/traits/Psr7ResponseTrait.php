@@ -1,11 +1,11 @@
 <?php
-
 declare(strict_types=1);
 
 namespace yii\Psr7\web\traits;
 
 use Psr\Http\Message\ResponseInterface;
 use Laminas\Diactoros\Response;
+use Laminas\Diactoros\Stream;
 use yii\base\InvalidConfigException;
 use yii\web\Cookie;
 use Yii;
@@ -13,12 +13,15 @@ use Yii;
 trait Psr7ResponseTrait
 {
     /**
+     * @var Stream|resource|array|null
+     */
+    /**
      * Populates this response with a PSR7 Response Interface
      *
-     * @param  ResponseInterface $response
+     * @param ResponseInterface $response
      * @return self
      */
-    public function withPsr7Response(ResponseInterface $response)
+    public function withPsr7Response(ResponseInterface $response): static
     {
         $this->setStatusCode($response->getStatusCode());
         $this->content = (string)$response->getBody();
@@ -157,17 +160,36 @@ trait Psr7ResponseTrait
     /**
      * Returns the PSR7 Stream
      *
-     * @return stream
+     * @return Stream
      */
-    private function getPsr7Content()
+    private function getPsr7Content(): Stream
     {
-        if ($this->stream === null) {
-            $stream = fopen('php://memory', 'r+');
-            fwrite($stream, $this->content ?? '');
-            rewind($stream);
-            $this->stream = $stream;
+        // Check if stream is already a Stream instance
+        if ($this->stream instanceof Stream) {
+            return $this->stream;
         }
 
-        return $this->stream;
+        // Handle case where stream might be an array (from parent class)
+        $streamResource = null;
+        if (is_array($this->stream) && isset($this->stream[0]) && is_resource($this->stream[0])) {
+            $streamResource = $this->stream[0];
+        } elseif (is_resource($this->stream)) {
+            $streamResource = $this->stream;
+        }
+
+        // Create new stream if needed
+        if ($streamResource === null) {
+            $streamResource = fopen('php://memory', 'r+');
+            if ($streamResource === false) {
+                throw new \RuntimeException('Failed to open memory stream');
+            }
+            fwrite($streamResource, $this->content ?? '');
+            rewind($streamResource);
+        }
+        
+        // Wrap resource in Stream for proper type safety
+        $stream = new Stream($streamResource);
+        $this->stream = $stream;
+        return $stream;
     }
 }

@@ -1,13 +1,11 @@
-<?php declare(strict_types=1);
+<?php 
+declare(strict_types=1);
 
 namespace yii\Psr7\web;
 
 use Psr\Http\Message\ServerRequestInterface;
-
 use Yii;
-
 use yii\base\InvalidConfigException;
-use yii\validators\IpValidator;
 use yii\web\HeaderCollection;
 use yii\web\NotFoundHttpException;
 use yii\web\RequestParserInterface;
@@ -19,50 +17,50 @@ class Request extends \yii\web\Request
      *
      * @var ServerRequestInterface
      */
-    private $psr7Request;
+    private ServerRequestInterface $psr7Request;
 
     /**
-     * @inheritdoc
+     * @var string $_queryParams
      */
     private $_rawBody;
 
     /**
-     * @inheritdoc
+     * @var HeaderCollection $_queryParams
      */
     private $_headers;
 
     /**
-     * @inheritdoc
+     * @var array $_bodyParams
      */
     private $_bodyParams;
 
     /**
-     * @inheritdoc
+     * @var array $_queryParams
      */
     private $_queryParams;
 
     /**
-     * @inheritdoc
+     * @var string $_hostInfo
      */
     private $_hostInfo;
 
     /**
-     * @inheritdoc
+     * @var string $_hostName
      */
     private $_hostName;
 
     /**
-     * @inheritdoc
+     * @var string $_scriptFile
      */
     private $_scriptFile;
 
     /**
-     * @inheritdoc
+     * @var string $_scriptUrl
      */
     private $_scriptUrl;
 
     /**
-     * @inheritdoc
+     * @var string $_baseUrl
      */
     private $_baseUrl;
 
@@ -72,7 +70,7 @@ class Request extends \yii\web\Request
      * @param  ServerRequestInterface $request
      * @return void
      */
-    public function setPsr7Request(ServerRequestInterface $request)
+    public function setPsr7Request(ServerRequestInterface $request): void
     {
         $this->psr7Request = $request;
     }
@@ -87,10 +85,7 @@ class Request extends \yii\web\Request
         return $this->psr7Request;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function resolve()
+    public function resolve(): array
     {
         $result = Yii::$app->getUrlManager()->parseRequest($this);
         if ($result !== false) {
@@ -105,10 +100,7 @@ class Request extends \yii\web\Request
         throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getHeaders()
+    public function getHeaders(): HeaderCollection
     {
         if ($this->_headers === null) {
             $this->_headers = new HeaderCollection;
@@ -123,18 +115,12 @@ class Request extends \yii\web\Request
         return $this->_headers;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getMethod()
+    public function getMethod(): string
     {
         return $this->getPsr7Request()->getMethod();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getRawBody()
+    public function getRawBody(): string
     {
         if ($this->_rawBody === null) {
             $request = clone $this->getPsr7Request();
@@ -146,18 +132,12 @@ class Request extends \yii\web\Request
         return $this->_rawBody;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function setRawBody($body)
+    public function setRawBody($body): void
     {
         $this->_rawBody = $body;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getBodyParams()
+    public function getBodyParams(): array|object
     {
         if ($this->_bodyParams === null) {
             $rawContentType = $this->getContentType();
@@ -192,43 +172,28 @@ class Request extends \yii\web\Request
         return $this->_bodyParams;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getContentType()
+    public function getContentType(): array|string
     {
         return $this->getHeaders()->get('Content-Type') ?? '';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getQueryParams()
+    public function getQueryParams(): array
     {
         return $this->_queryParams;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getScriptUrl()
+    public function getScriptUrl(): string
     {
         // The script URL doesn't matter in proxy situations since it is always the bootstrap endpoint.
         return '';
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getBaseUrl()
+    public function getBaseUrl(): bool|string
     {
         return Yii::getAlias('@web');
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getScriptFile()
+    public function getScriptFile(): mixed
     {
         if (isset($this->_scriptFile)) {
             return $this->_scriptFile;
@@ -241,10 +206,7 @@ class Request extends \yii\web\Request
         throw new InvalidConfigException('Unable to determine the entry script file path.');
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function resolvePathInfo()
+    protected function resolvePathInfo(): string
     {
         $pathInfo = $this->getUrl();
         if (($pos = strpos($pathInfo, '?')) !== false) {
@@ -278,10 +240,7 @@ class Request extends \yii\web\Request
         return (string)$pathInfo;
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function resolveRequestUri()
+    protected function resolveRequestUri(): string
     {
         $uri = $this->getPsr7Request()->getUri();
         $requestUri =  $uri->getPath();
@@ -297,26 +256,17 @@ class Request extends \yii\web\Request
         return $requestUri;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getQueryString()
+    public function getQueryString(): string
     {
         return $this->getPsr7Request()->getUri()->getQuery();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getServerParams()
+    public function getServerParams(): array
     {
         return $this->getPsr7Request()->getServerParams();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getIsSecureConnection()
+    public function getIsSecureConnection(): bool
     {
         if ($this->getPsr7Request()->getUri()->getScheme() === 'https') {
             return true;
@@ -335,26 +285,17 @@ class Request extends \yii\web\Request
         return false;
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getServerName()
+    public function getServerName(): string
     {
         return $this->getPsr7Request()->getUri()->getHost();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getServerPort()
+    public function getServerPort(): int|null
     {
         return $this->getPsr7Request()->getUri()->getPort();
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getAuthCredentials()
+    public function getAuthCredentials(): array
     {
         // Go net/http transforms the UserInfo URL component to a Authorization: Basic header
         // If this header is present, automatically decode it and treat it as the UserInfo component
@@ -373,10 +314,7 @@ class Request extends \yii\web\Request
         return [null, null];
     }
 
-    /**
-     * @inheritdoc
-     */
-    protected function loadCookies()
+    protected function loadCookies(): array
     {
         $cookies = [];
         if ($this->enableCookieValidation) {
@@ -396,7 +334,13 @@ class Request extends \yii\web\Request
                     continue;
                 }
 
-                $data = @unserialize($data);
+                // Use error suppression for unserialize to handle invalid data gracefully
+                // In PHP 8.5, unserialize() throws exceptions for invalid data
+                try {
+                    $data = unserialize($data, ['allowed_classes' => false]);
+                } catch (\Throwable $e) {
+                    continue;
+                }
                 if (is_array($data) && isset($data[0], $data[1]) && $data[0] === $name) {
                     $cookies[$name] = Yii::createObject(
                         [
@@ -434,7 +378,7 @@ class Request extends \yii\web\Request
      *
      * @return mixed[] Attributes derived from the request.
      */
-    public function getAttributes()
+    public function getAttributes(): array
     {
         return $this->getPsr7Request()->getAttributes();
     }
@@ -454,15 +398,12 @@ class Request extends \yii\web\Request
      * @param  mixed  $default Default value to return if the attribute does not exist.
      * @return mixed
      */
-    public function getAttribute($name, $default = null)
+    public function getAttribute($name, $default = null): mixed
     {
         return $this->getPsr7Request()->getAttribute($name, $default);
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function getHostInfo()
+    public function getHostInfo(): string
     {
         if ($this->_hostInfo === null) {
             $secure = $this->getIsSecureConnection();
@@ -484,4 +425,3 @@ class Request extends \yii\web\Request
         return $this->_hostInfo;
     }
 }
-

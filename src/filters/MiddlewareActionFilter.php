@@ -1,12 +1,10 @@
 <?php
-
 declare(strict_types=1);
 
 namespace yii\Psr7\filters;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 use Yii;
@@ -20,21 +18,20 @@ class MiddlewareActionFilter extends ActionFilter implements RequestHandlerInter
      *
      * @var integer $continueStatusCode
      */
-    private $continueStatusCode = 109;
+    private int $continueStatusCode = 109;
 
     /**
      * PSR-15 middlewares to execute before the action runs
      *
-     * @var MiddlewareInterface[] $middlewares
      */
-    public $middlewares = [];
+    public array $middlewares = [];
 
     /**
      * The modified request interface
      *
-     * @var ServerRequestInterface $request
+     * @var ServerRequestInterface|null $request
      */
-    private $request;
+    private ?ServerRequestInterface $request = null;
 
     /**
      * Returns the modified request
@@ -43,6 +40,9 @@ class MiddlewareActionFilter extends ActionFilter implements RequestHandlerInter
      */
     protected function getModifiedRequest(): ServerRequestInterface
     {
+        if ($this->request === null) {
+            throw new \RuntimeException('Request has not been set. Call handle() method first.');
+        }
         return $this->request;
     }
 
@@ -50,9 +50,9 @@ class MiddlewareActionFilter extends ActionFilter implements RequestHandlerInter
      * Before action
      *
      * @param  \yii\base\Action $action
-     * @return void
+     * @return bool|null
      */
-    public function beforeAction($action)
+    public function beforeAction($action): ?bool
     {
         // If there are no middlewares attached, skip this behavior
         if (!isset($this->middlewares) || empty($this->middlewares)) {
@@ -77,9 +77,9 @@ class MiddlewareActionFilter extends ActionFilter implements RequestHandlerInter
             // Populate the response
             Yii::$app->response->withPsr7Response($response);
 
-            // If we got an out-of-spec HTTP code back, kill the status code since we shouldn't send it.
+            // If we got an out-of-spec HTTP code back, reset the status code since we shouldn't send it.
             if ($response->getStatusCode() === $this->continueStatusCode) {
-                Yii::$app->response->setStatusCode(null);
+                Yii::$app->response->setStatusCode(200);
             }
 
             // If we didn't get a continue response, stop processing and return false

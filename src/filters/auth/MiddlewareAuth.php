@@ -1,5 +1,4 @@
 <?php
-
 declare(strict_types=1);
 
 namespace yii\Psr7\filters\auth;
@@ -28,12 +27,13 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
      *
      * @var integer
      */
-    private $continueStatusCode = 109;
+    private int $continueStatusCode = 109;
 
     /**
      * The PSR-15 middleware to run
+     * Must implement process(ServerRequestInterface, RequestHandlerInterface): ResponseInterface
      *
-     * @var MiddlewareInterface $middleware
+     * @var object|null
      */
     public $middleware;
 
@@ -42,14 +42,14 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
      *
      * @var string
      */
-    public $attribute;
+    public string $attribute;
 
     /**
      * The modified request interface
      *
-     * @var ServerRequestInterface $request
+     * @var ServerRequestInterface|null $request
      */
-    private $request;
+    public ?ServerRequestInterface $request = null;
 
     /**
      * Returns the modified request
@@ -58,6 +58,9 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
      */
     protected function getModifiedRequest(): ServerRequestInterface
     {
+        if ($this->request === null) {
+            throw new \RuntimeException('Request has not been set. Call handle() method first.');
+        }
         return $this->request;
     }
 
@@ -65,11 +68,11 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
      * Authenticates a user
      *
      * @param  User     $user
-     * @param  request  $request
+     * @param  Request  $request
      * @param  Response $response
      * @return IdentityInterface|null
      */
-    public function authenticate($user, $request, $response)
+    public function authenticate($user, $request, $response): IdentityInterface|null
     {
         if ($this->attribute === null) {
             Yii::error('Token attribute not set.', 'yii\Psr7\filters\auth\MiddlewareAuth');
@@ -80,10 +83,10 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
 
         // Process the PSR-15 middleware
         $instance = $this;
-        $process = $this->middleware->process(Yii::$app->request->getPsr7Request(), $instance);
+        $process = $this->middleware->process($request->getPsr7Request(), $instance);
 
         // Update the PSR-7 Request object
-        Yii::$app->request->setPsr7Request(
+        $request->setPsr7Request(
             $instance->getModifiedRequest()
         );
 
@@ -138,7 +141,7 @@ class MiddlewareAuth extends AuthMethod implements AuthInterface, RequestHandler
      * @throws HttpException
      * @return void
      */
-    public function handleFailure($response)
+    public function handleFailure($response): void
     {
         throw new HttpException(
             $response->getStatusCode(),

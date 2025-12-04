@@ -1,12 +1,9 @@
 <?php
-
 declare(strict_types=1);
 
 namespace yii\Psr7\web\monitor;
 
-use Yii;
 use yii\base\Event;
-
 use yii\Psr7\web\monitor\AbstractMonitor;
 
 /**
@@ -23,27 +20,27 @@ class EventMonitor extends AbstractMonitor
 {
     protected $handler;
 
-    protected $events = [];
+    protected array $events = [];
 
     public function __construct()
     {
-        $this->handler = function (Event $event) {
+        $this->handler = function (Event $event): void {
             $class = $event->sender;
             $this->events[] = $event;
         };
     }
 
-    public function on() : void
+    public function on(): void
     {
         Event::on('*', '*', $this->handler);
     }
 
-    public function off() : void
+    public function off(): void
     {
         Event::off('*', '*', $this->handler);
     }
 
-    public function shutdown() : void
+    public function shutdown(): void
     {
         foreach (\array_reverse($this->events) as $event) {
             $event->sender->off($event->name);
