@@ -12,7 +12,7 @@ use yii\db\Connection;
  */
 class ConnectionMonitor extends AbstractMonitor
 {
-    protected $handler;
+    protected \Closure $handler;
 
     protected array $connections = [];
 

@@ -80,7 +80,7 @@ class Request extends \yii\web\Request
      *
      * @return ServerRequestInterface|null
      */
-    public function getPsr7Request() :? ServerRequestInterface
+    public function getPsr7Request(): ?ServerRequestInterface
     {
         return $this->psr7Request;
     }

@@ -18,7 +18,7 @@ use yii\Psr7\web\monitor\AbstractMonitor;
  */
 class EventMonitor extends AbstractMonitor
 {
-    protected $handler;
+    protected \Closure $handler;
 
     protected array $events = [];
 
