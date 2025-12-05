@@ -20,49 +20,34 @@ class Request extends \yii\web\Request
     private ServerRequestInterface $psr7Request;
 
     /**
-     * @var string $_queryParams
+     * @var string|null $_rawBody
      */
     private $_rawBody;
 
     /**
-     * @var HeaderCollection $_queryParams
+     * @var HeaderCollection|null $_headers
      */
     private $_headers;
 
     /**
-     * @var array $_bodyParams
+     * @var array|null $_bodyParams
      */
     private $_bodyParams;
 
     /**
-     * @var array $_queryParams
+     * @var array|null $_queryParams
      */
     private $_queryParams;
 
     /**
-     * @var string $_hostInfo
+     * @var string|null $_hostInfo
      */
     private $_hostInfo;
 
     /**
-     * @var string $_hostName
-     */
-    private $_hostName;
-
-    /**
-     * @var string $_scriptFile
+     * @var string|null $_scriptFile
      */
     private $_scriptFile;
-
-    /**
-     * @var string $_scriptUrl
-     */
-    private $_scriptUrl;
-
-    /**
-     * @var string $_baseUrl
-     */
-    private $_baseUrl;
 
     /**
      * Sets the PSR-7 Request object
@@ -100,7 +85,7 @@ class Request extends \yii\web\Request
         throw new NotFoundHttpException(Yii::t('yii', 'Page not found.'));
     }
 
-    public function getHeaders(): HeaderCollection
+    public function getHeaders(): ?HeaderCollection
     {
         if ($this->_headers === null) {
             $this->_headers = new HeaderCollection;
@@ -120,7 +105,7 @@ class Request extends \yii\web\Request
         return $this->getPsr7Request()->getMethod();
     }
 
-    public function getRawBody(): string
+    public function getRawBody(): ?string
     {
         if ($this->_rawBody === null) {
             $request = clone $this->getPsr7Request();
@@ -137,7 +122,7 @@ class Request extends \yii\web\Request
         $this->_rawBody = $body;
     }
 
-    public function getBodyParams(): array|object
+    public function getBodyParams(): array|object|null
     {
         if ($this->_bodyParams === null) {
             $rawContentType = $this->getContentType();
@@ -177,7 +162,7 @@ class Request extends \yii\web\Request
         return $this->getHeaders()->get('Content-Type') ?? '';
     }
 
-    public function getQueryParams(): array
+    public function getQueryParams(): ?array
     {
         return $this->_queryParams;
     }
@@ -193,7 +178,7 @@ class Request extends \yii\web\Request
         return Yii::getAlias('@web');
     }
 
-    public function getScriptFile(): mixed
+    public function getScriptFile(): ?string
     {
         if (isset($this->_scriptFile)) {
             return $this->_scriptFile;
@@ -403,7 +388,7 @@ class Request extends \yii\web\Request
         return $this->getPsr7Request()->getAttribute($name, $default);
     }
 
-    public function getHostInfo(): string
+    public function getHostInfo(): ?string
     {
         if ($this->_hostInfo === null) {
             $secure = $this->getIsSecureConnection();
