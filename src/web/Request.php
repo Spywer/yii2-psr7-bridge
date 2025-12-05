@@ -50,6 +50,11 @@ class Request extends \yii\web\Request
     private $_scriptFile;
 
     /**
+     * @var string|null $_url
+     */
+    private $_url;
+
+    /**
      * Sets the PSR-7 Request object
      *
      * @param  ServerRequestInterface $request
@@ -189,6 +194,15 @@ class Request extends \yii\web\Request
         }
 
         throw new InvalidConfigException('Unable to determine the entry script file path.');
+    }
+
+    public function getUrl(): string
+    {
+        if ($this->_url === null) {
+            $this->_url = $this->resolveRequestUri();
+        }
+
+        return $this->_url;
     }
 
     protected function resolvePathInfo(): string
